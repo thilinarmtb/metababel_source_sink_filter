@@ -7,10 +7,7 @@ void btx_init_proc(void *btx_handle, void *usr_data) {
 void btx_push_usr_messages(void *btx_handle, void *usr_data, btx_source_status_t *status) {
   int vpid = 1;
   int vtid= 1;
-  uint64_t num_entries= 0;
-  uint64_t platforms= 1;
-  uint64_t num_platform = 3;
-  btx_push_message_thapi_start(btx_handle, vpid, vtid, num_entries, platforms, num_platform);
+  btx_push_message_thapi_start(btx_handle, vpid, vtid);
   *status = BTX_SOURCE_END;
 }
 

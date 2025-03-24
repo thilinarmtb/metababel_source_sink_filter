@@ -19,15 +19,3 @@
         :cast_type: int
   :event_classes:
   - :name: thapi_start
-    :payload_field_class:
-      :type: structure
-      :members:
-        - :name: num_entries
-          :field_class:
-            :type: integer_unsigned
-        - :name: platforms
-          :field_class:
-            :type: integer_unsigned
-        - :name: num_platform
-          :field_class:
-            :type: integer_unsigned
