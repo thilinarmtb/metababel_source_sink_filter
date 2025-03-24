@@ -19,3 +19,4 @@
         :cast_type: int
   :event_classes:
   - :name: thapi_start
+  - :name: thapi_stop
