@@ -3,7 +3,7 @@
     - :name: dummy
       :type: string
 :stream_classes:
-- :name: lttng_ust_toggle
+- :name: toggle
   :event_common_context_field_class:
     :type: structure
     :members:
@@ -18,5 +18,5 @@
         :field_value_range: 32
         :cast_type: int
   :event_classes:
-  - :name: start
-  - :name: stop
+  - :name: thapi_start
+  - :name: thapi_stop

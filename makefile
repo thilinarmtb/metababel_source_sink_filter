@@ -1,12 +1,10 @@
-CC = icx
+CC ?= icx
 CFLAGS = -fPIC -shared -Werror
-CXX = icpx
-CXXFLAGS = -fsycl
 MPICC = mpicc
 RUBY = ruby
 BBT2 = babeltrace2
-THAPIDIR = ../THAPI/ici
 IPROF = $(THAPIDIR)/bin/iprof --no-analysis
+THAPIDIR = ../THAPI/ici
 MBDIR =../metababel/
 
 ################# Don't touch what follows ####################
@@ -22,9 +20,15 @@ source: toggle.yaml btx_source/callbacks.c
 	$(RUBY) -I$(MBDIR)/lib $(MBDIR)/bin/metababel --component-type SOURCE --downstream toggle.yaml -o btx_source
 	$(CC) -g -o btx_source.so btx_source/*.c btx_source/metababel/*.c -I./btx_source -I$(MBDIR)/include $(CFLAGS) $(BBT2FLAGS)
 
-sink: toggle.yaml btx_sink/callbacks.c source
+sink: toggle.yaml btx_sink/callbacks.c
 	$(RUBY) -I$(MBDIR)/lib $(MBDIR)/bin/metababel --component-type SINK --upstream toggle.yaml -o btx_sink
 	$(CC) -g -o btx_sink.so btx_sink/*.c btx_sink/metababel/*.c -I ./btx_sink -I$(MBDIR)/include $(CFLAGS) $(BBT2FLAGS)
+
+run_source: source
+	babeltrace2 --plugin-path=. --component=source.metababel_source.btx --component=sink.text.details
+
+run_sink: sink source
+	babeltrace2 --plugin-path=. --component=source.metababel_source.btx --component=sink.metababel_sink.btx
 
 bins: $(BINS)
 
