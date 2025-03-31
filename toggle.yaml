@@ -1,9 +1,14 @@
-:environment:
-  :entries:
-    - :name: dummy
-      :type: string
 :stream_classes:
-- :name: toggle
+- :name: thapi_toggle
+  :default_clock_class: {}
+  :packet_context_field_class:
+    :type: structure
+    :members:
+    - :name: cpu_id
+      :field_class:
+        :type: integer_unsigned
+        :cast_type: uint64_t
+        :field_value_range: 32
   :event_common_context_field_class:
     :type: structure
     :members:
@@ -18,5 +23,5 @@
         :field_value_range: 32
         :cast_type: int
   :event_classes:
-  - :name: thapi_start
-  - :name: thapi_stop
+  - :name: lttng_ust_toggle:start
+  - :name: lttng_ust_toggle:stop
