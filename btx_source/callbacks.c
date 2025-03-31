@@ -1,15 +1,15 @@
 #include <metababel/metababel.h>
 
 void btx_init_proc(void *btx_handle, void *usr_data) {
-  btx_downstream_set_environment_dummy(btx_handle, "roger");
 }
 
 void btx_push_usr_messages(void *btx_handle, void *usr_data, btx_source_status_t *status) {
   int vpid = 1;
   int vtid= 1;
-  btx_push_message_stop(btx_handle, vpid, vtid);
-  btx_push_message_start(btx_handle, vpid, vtid);
-  btx_push_message_stop(btx_handle, vpid, vtid);
+  int64_t _timestamp = 0;
+  btx_push_message_lttng_ust_toggle_stop(btx_handle, _timestamp, vpid, vtid);
+  btx_push_message_lttng_ust_toggle_start(btx_handle, _timestamp, vpid, vtid);
+  btx_push_message_lttng_ust_toggle_stop(btx_handle, _timestamp, vpid, vtid);
   *status = BTX_SOURCE_END;
 }
 
