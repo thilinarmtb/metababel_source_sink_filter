@@ -27,8 +27,11 @@ sink: toggle.yaml btx_sink/callbacks.c
 run_source: source
 	babeltrace2 --plugin-path=. --component=source.metababel_source.btx --component=sink.text.details
 
-run_sink: sink source
-	babeltrace2 --plugin-path=. --component=source.metababel_source.btx --component=sink.metababel_sink.btx
+run_txt_sink: source
+	$(BBT2) --plugin-path=. --component=source.metababel_source.btx --component=sink.text.details
+
+run_mb_sink: sink source
+	$(BBT2) --plugin-path=. --component=source.metababel_source.btx --component=sink.metababel_sink.btx
 
 bins: $(BINS)
 
@@ -40,7 +43,8 @@ trace_%: % bins
 	$(IPROF) --trace_output $(TRACEDIR) -- ./$<
 
 run_%: trace_% sink
-	$(BBT2) --plugin-path=. run  --component source:source.ctf.fs --params "inputs=[\"$(shell find $(TRACEDIR) -iname metadata)/..\"]" --component=sink:sink.text.details --connect=source:sink
+	# $(BBT2) --plugin-path=. run  --component source:source.ctf.fs --params "inputs=[\"$(shell find $(TRACEDIR) -iname metadata)/..\"]" --component=sink:sink.text.details --connect=source:sink
+	$(BBT2) --plugin-path=. --component source:source.ctf.fs --params "inputs=[\"$(shell find $(TRACEDIR) -iname metadata)/..\"]" --component=sink:sink.metababel_sink.btx
 
 clean:
 	@rm -rf btx_source/btx_main.c btx_source/metababel
