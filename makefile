@@ -44,7 +44,7 @@ trace_%: % bins
 
 run_%: trace_% sink
 	# $(BBT2) --plugin-path=. run  --component source:source.ctf.fs --params "inputs=[\"$(shell find $(TRACEDIR) -iname metadata)/..\"]" --component=sink:sink.text.details --connect=source:sink
-	$(BBT2) --plugin-path=. --component source:source.ctf.fs --params "inputs=[\"$(shell find $(TRACEDIR) -iname metadata)/..\"]" --component=sink:sink.metababel_sink.btx
+	$(BBT2) --plugin-path=. --component source:source.ctf.fs --params "inputs=[\"$(shell dirname $(shell find $(TRACEDIR) -iname metadata))\"]" --component=sink:sink.metababel_sink.btx
 
 clean:
 	@rm -rf btx_source/btx_main.c btx_source/metababel
