@@ -14,34 +14,44 @@ INCFLAGS = -I$(THAPIDIR)/include
 LDFLAGS = -Wl,-rpath,$(THAPIDIR)/lib -L$(THAPIDIR)/lib -lThapi
 BINS = mpi
 
-all: run_mpi
+all: run_mpi_filter
 
 source: toggle.yaml btx_source/callbacks.c
-	$(RUBY) -I$(MBDIR)/lib $(MBDIR)/bin/metababel --component-type SOURCE --downstream toggle.yaml -o btx_source
-	$(CC) $(CFLAGS) -o btx_source.so btx_source/*.c btx_source/metababel/*.c -I./btx_source -I$(MBDIR)/include $(BBT2FLAGS)
+	$(RUBY) -I$(MBDIR)/lib $(MBDIR)/bin/metababel --component-type SOURCE \
+		--downstream toggle.yaml -o btx_source
+	$(CC) $(CFLAGS) -o btx_source.so btx_source/*.c btx_source/metababel/*.c \
+		-I./btx_source -I$(MBDIR)/include $(BBT2FLAGS)
 
 sink: toggle.yaml btx_sink/callbacks.c
-	$(RUBY) -I$(MBDIR)/lib $(MBDIR)/bin/metababel --component-type SINK --upstream toggle.yaml -o btx_sink
-	$(CC) $(CFLAGS) -o btx_sink.so btx_sink/*.c btx_sink/metababel/*.c -I ./btx_sink -I$(MBDIR)/include $(BBT2FLAGS)
+	$(RUBY) -I$(MBDIR)/lib $(MBDIR)/bin/metababel --component-type SINK \
+		--upstream toggle.yaml -o btx_sink
+	$(CC) $(CFLAGS) -o btx_sink.so btx_sink/*.c btx_sink/metababel/*.c \
+		-I./btx_sink -I$(MBDIR)/include $(BBT2FLAGS)
 
 filter: toggle.yaml btx_filter/callbacks.c
-	$(RUBY) -I$(MBDIR)/lib $(MBDIR)/bin/metababel --enable-callbacks on_downstream --component-type FILTER \
-		--upstream toggle.yaml --downstream toggle.yaml -o btx_filter
-	$(CC) $(CFLAGS) -o btx_filter.so btx_filter/*.c btx_filter/metababel/*.c -I ./btx_filter -I$(MBDIR)/include $(BBT2FLAGS)
+	$(RUBY) -I$(MBDIR)/lib $(MBDIR)/bin/metababel --enable-callbacks on_downstream \
+		--component-type FILTER --upstream toggle.yaml --downstream toggle.yaml \
+		-o btx_filter
+	$(CC) $(CFLAGS) -o btx_filter.so btx_filter/*.c btx_filter/metababel/*.c \
+		-I./btx_filter -I$(MBDIR)/include $(BBT2FLAGS)
 
 bins: $(BINS)
 
 run_source: source
-	$(BBT2) --plugin-path=. --component=source.metababel_source.btx --component=sink.text.details
+	$(BBT2) --plugin-path=. --component=source.metababel_source.btx \
+		--component=sink.text.details
 
 run_txt_sink: source
-	$(BBT2) --plugin-path=. --component=source.metababel_source.btx --component=sink.text.details
+	$(BBT2) --plugin-path=. --component=source.metababel_source.btx \
+		--component=sink.text.details
 
 run_mb_sink: sink source
-	$(BBT2) --plugin-path=. --component=source.metababel_source.btx --component=sink.metababel_sink.btx
+	$(BBT2) --plugin-path=. --component=source.metababel_source.btx \
+		--component=sink.metababel_sink.btx
 
 run_filter: source filter
-	$(BBT2) --plugin-path=. --component=source.metababel_source.btx --component=filter.metababel_filter.btx --component=sink.text.pretty
+	$(BBT2) --plugin-path=. --component=source.metababel_source.btx \
+		--component=filter.metababel_filter.btx --component=sink.text.pretty
 
 %: %.c
 	$(MPICC) $(INCFLAGS) $< -o $@ $(LDFLAGS)
@@ -51,13 +61,19 @@ trace_%: % bins
 	$(IPROF) --trace_output $(TRACEDIR) -- ./$<
 
 run_%_mb_sink: trace_% sink
-	$(BBT2) --plugin-path=. --component source:source.ctf.fs --params "inputs=[\"$(shell dirname $(shell find $(TRACEDIR) -iname metadata))\"]" --component=sink:sink.metababel_sink.btx
+	$(BBT2) --plugin-path=. --component source:source.ctf.fs \
+		--params "inputs=[\"$(shell dirname $(shell find $(TRACEDIR) -iname metadata))\"]" \
+		--component=sink:sink.metababel_sink.btx
 
 run_%_txt_sink: trace_% sink
-	$(BBT2) --plugin-path=. --component source:source.ctf.fs --params "inputs=[\"$(shell dirname $(shell find $(TRACEDIR) -iname metadata))\"]" --component=sink:sink.text.pretty
+	$(BBT2) --plugin-path=. --component source:source.ctf.fs \
+		--params "inputs=[\"$(shell dirname $(shell find $(TRACEDIR) -iname metadata))\"]" \
+		--component=sink:sink.text.pretty
 
 run_%_filter: trace_% filter
-	$(BBT2) --plugin-path=. --component source:source.ctf.fs --params "inputs=[\"$(shell dirname $(shell find $(TRACEDIR) -iname metadata))\"]" --component=filter:filter.metababel_filter.btx \
+	$(BBT2) --plugin-path=. --component source:source.ctf.fs \
+		--params "inputs=[\"$(shell dirname $(shell find $(TRACEDIR) -iname metadata))\"]" \
+		--component=filter:filter.metababel_filter.btx \
 		--component=sink:sink.text.pretty
 
 clean:
