@@ -9,7 +9,6 @@ int main(int argc, char *argv[]) {
   thapi_start();
   MPI_Finalize();
   thapi_stop();
-  thapi_stop();
 
   return 0;
 }
