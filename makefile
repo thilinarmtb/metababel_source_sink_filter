@@ -1,14 +1,14 @@
 CC ?= icx
-CFLAGS = -fPIC -shared -Werror -g
-MPICC = mpicc
-RUBY = ruby
-BBT2 = babeltrace2
-IPROF = $(THAPIDIR)/bin/iprof --no-analysis
-THAPIDIR = ../THAPI/ici
-MBDIR =../metababel/
+CFLAGS ?= -fPIC -shared -Werror -g
+MPICC ?= mpicc
+RUBY ?= ruby
+BBT2 ?= babeltrace2
+THAPIDIR ?= ../../ici
+MBDIR ?=../metababel/
 
 ################# Don't touch what follows ####################
-TRACEDIR=traces
+IPROF = $(THAPIDIR)/bin/iprof --no-analysis
+TRACEDIR = traces
 BBT2FLAGS = $(shell pkg-config --cflags $(BBT2)) $(shell pkg-config --libs $(BBT2))
 INCFLAGS = -I$(THAPIDIR)/include
 LDFLAGS = -Wl,-rpath,$(THAPIDIR)/lib -L$(THAPIDIR)/lib -lThapi
@@ -35,17 +35,15 @@ filter: toggle.yaml btx_filter/callbacks.c
 	$(CC) $(CFLAGS) -o btx_filter.so btx_filter/*.c btx_filter/metababel/*.c \
 		-I./btx_filter -I$(MBDIR)/include $(BBT2FLAGS)
 
-bins: $(BINS)
-
 run_source: source
 	$(BBT2) --plugin-path=. --component=source.metababel_source.btx \
 		--component=sink.text.details
 
-run_txt_sink: source
+run_sink_txt: source
 	$(BBT2) --plugin-path=. --component=source.metababel_source.btx \
 		--component=sink.text.details
 
-run_mb_sink: sink source
+run_sink_mb: sink source
 	$(BBT2) --plugin-path=. --component=source.metababel_source.btx \
 		--component=sink.metababel_sink.btx
 
@@ -56,16 +54,18 @@ run_filter: source filter
 %: %.c
 	$(MPICC) $(INCFLAGS) $< -o $@ $(LDFLAGS)
 
-trace_%: % bins
+bins: $(BINS)
+
+trace_%: % | bins
 	@rm -rf $(TRACEDIR)
 	$(IPROF) --trace_output $(TRACEDIR) -- ./$<
 
-run_%_mb_sink: trace_% sink
+run_%_sink_mb: trace_% sink
 	$(BBT2) --plugin-path=. --component source:source.ctf.fs \
 		--params "inputs=[\"$(shell dirname $(shell find $(TRACEDIR) -iname metadata))\"]" \
 		--component=sink:sink.metababel_sink.btx
 
-run_%_txt_sink: trace_% sink
+run_%_sink_txt: trace_% sink
 	$(BBT2) --plugin-path=. --component source:source.ctf.fs \
 		--params "inputs=[\"$(shell dirname $(shell find $(TRACEDIR) -iname metadata))\"]" \
 		--component=sink:sink.text.pretty
