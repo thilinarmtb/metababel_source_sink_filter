@@ -4,9 +4,8 @@
 #include <thapi.h>
 
 int main(int argc, char *argv[]) {
-  MPI_Init(&argc, &argv);
-
   thapi_start();
+  MPI_Init(&argc, &argv);
   MPI_Finalize();
   thapi_stop();
 

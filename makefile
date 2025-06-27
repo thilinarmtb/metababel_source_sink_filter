@@ -59,7 +59,7 @@ bins: $(BINS)
 
 trace_%: % | bins
 	@rm -rf $(TRACEDIR)
-	$(IPROF) --trace_output $(TRACEDIR) -- ./$<
+	mpirun -np 1 -- $(IPROF) --trace_output $(TRACEDIR) -- ./$<
 
 run_%_sink_mb: trace_% sink
 	$(BBT2) --plugin-path=. --component source:source.ctf.fs \
