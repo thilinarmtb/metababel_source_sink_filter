@@ -1,18 +1,21 @@
 #include <metababel/metababel.h>
 #include <stdio.h>
+#include <stdint.h>
 
 static void init(void **data) { *data = calloc(1, sizeof(int)); }
 
 static void finalize(void *data) { free(data); }
 
-static void thapi_start_callback(void *btx_handle, void *push, long int cpuid,
+static void thapi_start_callback(void *btx_handle, void *push, int64_t cpuid, const char *hostname,
                                  int vpid, int vtid) {
 
+  printf("%s:%s\n", __func__, hostname);
   *((int *)push) = 1;
 }
 
-static void thapi_stop_callback(void *btx_handle, void *push, long int cpuid,
+static void thapi_stop_callback(void *btx_handle, void *push, int64_t cpuid, const char *hostname,
                                 int vpid, int vtid) {
+  printf("%s:%s\n", __func__, hostname);
   *((int *)push) = 0;
 }
 
