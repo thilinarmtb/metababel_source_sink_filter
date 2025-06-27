@@ -1,4 +1,5 @@
 CC ?= icx
+CXX ?= icpx
 CFLAGS ?= -fPIC -shared -Werror -g
 MPICC ?= mpicc
 RUBY ?= ruby
@@ -28,12 +29,12 @@ sink: toggle.yaml btx_sink/callbacks.c
 	$(CC) $(CFLAGS) -o btx_sink.so btx_sink/*.c btx_sink/metababel/*.c \
 		-I./btx_sink -I$(MBDIR)/include $(BBT2FLAGS)
 
-filter: toggle.yaml btx_filter/callbacks.c
+filter: toggle.yaml btx_filter/callbacks.cpp
 	$(RUBY) -I$(MBDIR)/lib $(MBDIR)/bin/metababel --enable-callbacks on_downstream \
 		--component-type FILTER --upstream toggle.yaml --downstream toggle.yaml \
 		-o btx_filter
-	$(CC) $(CFLAGS) -o btx_filter.so btx_filter/*.c btx_filter/metababel/*.c \
-		-I./btx_filter -I$(MBDIR)/include $(BBT2FLAGS)
+	$(CXX) $(CFLAGS) -o btx_filter.so btx_filter/callbacks.cpp btx_filter/*.c \
+		btx_filter/metababel/*.c -I./btx_filter -I$(MBDIR)/include $(BBT2FLAGS)
 
 run_source: source
 	$(BBT2) --plugin-path=. --component=source.metababel_source.btx \

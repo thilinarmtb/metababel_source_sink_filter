@@ -1,6 +1,9 @@
+#include <cstdint>
+#include <cstdio>
+#include <string>
+#include <unordered_map>
+
 #include <metababel/metababel.h>
-#include <stdio.h>
-#include <stdint.h>
 
 static void init(void **data) { *data = calloc(1, sizeof(int)); }
 
